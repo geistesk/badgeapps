@@ -1,7 +1,8 @@
 import color
 import display
-import utime
+import leds
 import urandom
+import utime
 
 
 COLORS = [(0, 153, 51), (0, 153, 0), (51, 204, 51), (0, 102, 0), (102, 255, 102)]
@@ -57,7 +58,14 @@ class LineManager:
             disp.update()
 
 
+def matrix_leds():
+    for l in range(15):
+        leds.set(l, urandom.choice(COLORS))
+
+
 lm = LineManager()
 while True:
+    matrix_leds()
     lm.draw()
+
     utime.sleep(0.05)
