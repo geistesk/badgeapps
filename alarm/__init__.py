@@ -25,6 +25,7 @@ def show_time(t):
 class Alarm:
     def __init__(self, limit):
         self._limit = limit
+        self._done = False
 
         interrupt.set_callback(interrupt.RTC_ALARM, self._countdown_handler)
         interrupt.enable_callback(interrupt.RTC_ALARM)
@@ -32,7 +33,7 @@ class Alarm:
         utime.alarm(utime.time() + 1)
 
     def _countdown_handler(self, x):
-        self._limit -= 1
+        self._limit = max(0, self._limit - 1)
         show_time(self._limit)
 
         if self._limit > 0:
@@ -41,14 +42,21 @@ class Alarm:
             self._alarm_handler()
 
     def _alarm_handler(self):
-        while True:
-            vibra.vibrate(100)
-            utime.sleep_ms(100)
+        interrupt.disable_callback(interrupt.RTC_ALARM)
 
+        vibra.set(True)
+        while True:
             pressed = buttons.read(buttons.BOTTOM_LEFT | buttons.BOTTOM_RIGHT | \
                     buttons.TOP_RIGHT | buttons.TOP_LEFT)
             if pressed != 0:
                 break
+
+        vibra.set(False)
+        self._done = True
+
+    def wait(self):
+        while not self._done:
+            pass
 
 
 class SetupMenu:
@@ -69,7 +77,6 @@ class SetupMenu:
                 return Alarm(self._time_val)
 
 
-SetupMenu().start_alarm()
-
 while True:
-    pass
+    SetupMenu().start_alarm().wait()
+    utime.sleep(0.25)
