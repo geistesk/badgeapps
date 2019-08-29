@@ -3,6 +3,7 @@ import display
 import leds
 import urandom
 import utime
+import os
 
 
 COLORS = [(0, 153, 51), (0, 153, 0), (51, 204, 51), (0, 102, 0), (102, 255, 102)]
@@ -62,6 +63,21 @@ class LineDrawer(Drawer):
                         col=color.Color(p[1][0], p[1][1], p[1][2]))
 
 
+class NickDrawer(Drawer):
+    FILENAME = 'nickname.txt'
+
+    def __init__(self):
+        if NickDrawer.FILENAME in os.listdir("."):
+            f = open(NickDrawer.FILENAME, 'r')
+            self._nick = f.read()
+            f.close()
+        else:
+            self._nick = "No {}".format(NickDrawer.FILENAME)
+
+    def draw(self, disp):
+        disp.print(self._nick, fg=urandom.choice(COLORS),
+                posx=80 - round(len(self._nick) / 2 * 14), posy=30)
+
 
 def matrix_leds():
     for l in range(15):
@@ -69,12 +85,15 @@ def matrix_leds():
 
 
 ld = LineDrawer()
+nd = NickDrawer()
+
 while True:
     matrix_leds()
 
     with display.open() as disp:
         disp.clear()
         ld.draw(disp)
+        nd.draw(disp)
         disp.update()
 
     utime.sleep(DELAY_SEC)
