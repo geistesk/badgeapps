@@ -6,10 +6,18 @@ import utime
 
 
 COLORS = [(0, 153, 51), (0, 153, 0), (51, 204, 51), (0, 102, 0), (102, 255, 102)]
-LINES = 40
+LINE_AMOUNT = 50
+DELAY_SEC = 0.03
+
+
+class Drawer:
+    "Drawer is a interface-like class with the draw method for the display."
+    def draw(self, disp):
+        pass
 
 
 class Line:
+    "A simple matrix-like Line, is used by the LineDrawer."
     def __init__(self):
         self._x = urandom.randint(0, 160)
         self._y = urandom.randint(0, 20)
@@ -37,25 +45,22 @@ class Line:
             return ((self._x, self._y + self._iter_id), col)
 
 
-class LineManager:
+class LineDrawer(Drawer):
+    "LineDrawer draws multiple Lines for the matrix-like background."
     def __init__(self):
         self._lines = []
-        for l in range(LINES):
+        for l in range(LINE_AMOUNT):
             self._lines.append(Line())
 
-    def draw(self):
-        with display.open() as disp:
-            disp.clear()
+    def draw(self, disp):
+        for i in range(LINE_AMOUNT):
+            if not self._lines[i].update_check():
+                self._lines[i] = Line()
 
-            for i in range(LINES):
-                if not self._lines[i].update_check():
-                    self._lines[i] = Line()
+            for p in self._lines[i]:
+                disp.pixel(p[0][0], p[0][1],
+                        col=color.Color(p[1][0], p[1][1], p[1][2]))
 
-                for p in self._lines[i]:
-                    disp.pixel(p[0][0], p[0][1],
-                            col=color.Color(p[1][0], p[1][1], p[1][2]))
-
-            disp.update()
 
 
 def matrix_leds():
@@ -63,9 +68,13 @@ def matrix_leds():
         leds.set(l, urandom.choice(COLORS))
 
 
-lm = LineManager()
+ld = LineDrawer()
 while True:
     matrix_leds()
-    lm.draw()
 
-    utime.sleep(0.05)
+    with display.open() as disp:
+        disp.clear()
+        ld.draw(disp)
+        disp.update()
+
+    utime.sleep(DELAY_SEC)
