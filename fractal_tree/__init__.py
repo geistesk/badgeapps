@@ -1,14 +1,11 @@
-# Const to determine which badge is used
-SHA17 = 0
-CCC19 = 1
-BADGE = None
-
+SHA17, CCC19, BADGE = 0, 1, None
 try:
     import ugfx
     BADGE = SHA17
 except:
     import display
     BADGE = CCC19
+
 
 if BADGE == SHA17:
     import ugfx
@@ -24,8 +21,6 @@ elif BADGE == CCC19:
     from utime   import sleep
 
     EDGE_RIGHT_DOWN = (159, 79)
-else:
-    raise ValueError("Unknown badge")
 
 
 def sanitize_point(point):
@@ -43,9 +38,7 @@ def tree(point, level, angle, disp):
         if BADGE == SHA17:
             ugfx.line(point[0], point[1], point_new[0], point_new[1], ugfx.WHITE)
         elif BADGE == CCC19:
-            p0 = sanitize_point(point)
-            p1 = sanitize_point(point_new)
-
+            p0, p1 = sanitize_point(point), sanitize_point(point_new)
             disp.line(p0[0], p0[1], p1[0], p1[1], col=(128, 128, 128))
 
         tree(point_new, level - 1, angle - 20 * rand_left, disp)
@@ -65,20 +58,24 @@ if BADGE == SHA17:
     ugfx.input_attach(ugfx.BTN_START, lambda p: quit(p))
     ugfx.input_attach(ugfx.BTN_SELECT, lambda p: quit(p))
 
-while True:
-    if BADGE == CCC19:
-        disp = display.open()
-    else:
-        disp = None
+    disp = None
+elif BADGE == CCC19:
+    disp = display.open()
 
+while True:
     for i in range(0, randint(4, 8)):
         tree(EDGE_RIGHT_DOWN, randint(4, 14), -155, disp)
-        sleep(randint(3, 13) * 0.1)
-        # ugfx.flush()  # TODO
+
+        if BADGE == SHA17:
+            sleep(randint(3, 13) * 0.1)
+            ugfx.flush()
+        elif BADGE == CCC19:
+            disp.update()
+            sleep(0.1)
 
     if BADGE == SHA17:
         ugfx.clear(ugfx.BLACK)
         ugfx.flush()
     elif BADGE == CCC19:
-        disp.update()
-        disp.close()
+        sleep(0.5)
+        disp.clear().update()
