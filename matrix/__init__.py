@@ -1,3 +1,4 @@
+import buttons
 import color
 import display
 import leds
@@ -64,6 +65,7 @@ class LineDrawer(Drawer):
 
 
 class TextDrawer(Drawer):
+    "TextDrawer is an abstract class which draws the text from the _text method."
     def _text(self):
         pass
 
@@ -74,25 +76,32 @@ class TextDrawer(Drawer):
 
 
 class NickDrawer(TextDrawer):
-    FILENAME = 'nickname.txt'
-
+    "NickDrawer draws the nickname from the nickname.txt file."
     def __init__(self):
-        if NickDrawer.FILENAME in os.listdir("."):
-            f = open(NickDrawer.FILENAME, 'r')
+        nick = "nickname.txt"
+        if nick in os.listdir("."):
+            f = open(nick, 'r')
             self._nick = f.read()
             f.close()
         else:
-            self._nick = "No {}".format(NickDrawer.FILENAME)
+            self._nick = "No {}".format(nick)
 
     def _text(self):
         return self._nick
 
 
 class TimeDrawer(TextDrawer):
+    "TimeDrawer draws the current time, like a digital clock."
     def _text(self):
         t = utime.localtime()
         h, m, s = t[3], t[4], t[5]
         return "{:02}:{:02}:{:02}".format(h, m, s)
+
+
+class NoneDrawer(Drawer):
+    "NoneDrawer draws nothing to just show the background."
+    def draw(self, disp):
+        pass
 
 
 def matrix_leds():
@@ -100,18 +109,29 @@ def matrix_leds():
         leds.set(l, urandom.choice(COLORS))
 
 
-ld = LineDrawer()
-# nd = NickDrawer()
-td = TimeDrawer()
+bg = LineDrawer()
+fgs = [NoneDrawer(), NickDrawer(), TimeDrawer()]
+fg_no = 0
+leds_on = False
 
 while True:
-    matrix_leds()
+    pressed = buttons.read(buttons.BOTTOM_LEFT | buttons.BOTTOM_RIGHT | buttons.TOP_RIGHT)
+    if pressed & buttons.BOTTOM_LEFT != 0:
+        fg_no = fg_no-1 if fg_no > 0 else len(fgs)-1
+    elif pressed & buttons.BOTTOM_RIGHT != 0:
+        fg_no = fg_no+1 if fg_no < len(fgs)-1 else 0
+    elif pressed & buttons.TOP_RIGHT != 0:
+        leds_on = not leds_on
+        if not leds_on:
+            leds.clear()
 
     with display.open() as disp:
         disp.clear()
-        ld.draw(disp)
-        #nd.draw(disp)
-        td.draw(disp)
+        bg.draw(disp)
+        fgs[fg_no].draw(disp)
         disp.update()
+
+    if leds_on:
+        matrix_leds()
 
     utime.sleep(DELAY_SEC)
