@@ -63,7 +63,17 @@ class LineDrawer(Drawer):
                         col=color.Color(p[1][0], p[1][1], p[1][2]))
 
 
-class NickDrawer(Drawer):
+class TextDrawer(Drawer):
+    def _text(self):
+        pass
+
+    def draw(self, disp):
+        msg = self._text()
+        disp.print(msg, fg=urandom.choice(COLORS),
+                posx=80 - round(len(msg) / 2 * 14), posy=30)
+
+
+class NickDrawer(TextDrawer):
     FILENAME = 'nickname.txt'
 
     def __init__(self):
@@ -74,9 +84,15 @@ class NickDrawer(Drawer):
         else:
             self._nick = "No {}".format(NickDrawer.FILENAME)
 
-    def draw(self, disp):
-        disp.print(self._nick, fg=urandom.choice(COLORS),
-                posx=80 - round(len(self._nick) / 2 * 14), posy=30)
+    def _text(self):
+        return self._nick
+
+
+class TimeDrawer(TextDrawer):
+    def _text(self):
+        t = utime.localtime()
+        h, m, s = t[3], t[4], t[5]
+        return "{:02}:{:02}:{:02}".format(h, m, s)
 
 
 def matrix_leds():
@@ -85,7 +101,8 @@ def matrix_leds():
 
 
 ld = LineDrawer()
-nd = NickDrawer()
+# nd = NickDrawer()
+td = TimeDrawer()
 
 while True:
     matrix_leds()
@@ -93,7 +110,8 @@ while True:
     with display.open() as disp:
         disp.clear()
         ld.draw(disp)
-        nd.draw(disp)
+        #nd.draw(disp)
+        td.draw(disp)
         disp.update()
 
     utime.sleep(DELAY_SEC)
