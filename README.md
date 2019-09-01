@@ -33,9 +33,16 @@ enabled/disabled by the top right button.
 Pixelflood server on your badge.
 
 
+## sensorthingy, *card10* [hatchery][hatchery-sensorthingy]
+
+The SensorThingy interacts with the card10's sensors and logs them into a
+JSON file.
+
+
 [sha17]: https://wiki.sha2017.org/w/Projects:Badge
 [cccamp19]: https://card10.badge.events.ccc.de/
 [hatchery-alarm]: https://badge.team/projects/alarm
 [hatchery-fractal_tree]: https://badge.team/projects/fractal_tree
 [hatchery-matrix]: https://badge.team/projects/matrix_animation
 [hatchery-pixelflood]: https://badge.team/projects/pixelflood
+[hatchery-sensorthingy]: https://badge.team/projects/sensorthingy
