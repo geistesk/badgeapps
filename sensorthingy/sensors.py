@@ -1,6 +1,7 @@
 import bme680
 import light_sensor
 import power
+import utime
 
 
 class Sensor:
@@ -20,12 +21,17 @@ class Sensor:
         """
         pass
 
+    def to_dict(self, **kwargs):
+        "to_dict returns this Sensor as a dictionary."
+        measurements = dict(zip(self.fields, self.read_values(**kwargs)))
+        return {self.name: measurements, "Time": utime.time()}
+
 
 class EnvironmentalSensor(Sensor):
     "EnvironmentalSensor reads environmental values from the BME680 sensor."
 
     def __init__(self):
-        super().__init__("Environmental Sensor")
+        super().__init__("Environmental")
 
     @property
     def fields(self):
@@ -44,7 +50,7 @@ class LightSensor(Sensor):
     "LightSensor reads the values from the onboard IR-LED."
 
     def __init__(self):
-        super().__init__("Light Sensor")
+        super().__init__("Light")
 
     @property
     def fields(self):
@@ -73,7 +79,7 @@ class PowerSensor(Sensor):
     "PowerSensor reads the card10's power status."
 
     def __init__(self):
-        super().__init__("Power Sensor")
+        super().__init__("Power")
 
     @property
     def fields(self):
