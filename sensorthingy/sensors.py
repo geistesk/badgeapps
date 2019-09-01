@@ -1,3 +1,4 @@
+import bme680
 import light_sensor
 import power
 
@@ -18,6 +19,25 @@ class Sensor:
             them as a list, in the same order as returned by fields.
         """
         pass
+
+
+class EnvironmentalSensor(Sensor):
+    "EnvironmentalSensor reads environmental values from the BME680 sensor."
+
+    def __init__(self):
+        super().__init__("Environmental Sensor")
+
+    @property
+    def fields(self):
+        return ["Temperature (C)", "Humidity (% r.h.)",
+                "Pressure (hPa)", "Gas resistance (Ohm)"]
+
+    def read_values(self, **kwargs):
+        bme680.init()
+        data = bme680.get_data()
+        bme680.deinit()
+
+        return list(data)
 
 
 class LightSensor(Sensor):
@@ -54,7 +74,7 @@ class PowerSensor(Sensor):
 
     def __init__(self):
         super().__init__("Power Sensor")
-    
+
     @property
     def fields(self):
         return ["Battery Voltage (V)", "Battery Current (A)",
