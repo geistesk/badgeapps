@@ -89,3 +89,6 @@ class PowerSensor(Sensor):
     def read_values(self, **kwargs):
         return [power.read_battery_voltage(), power.read_battery_current(),
                 power.read_chargein_voltage(), power.read_chargein_current()]
+
+
+sensors = [EnvironmentalSensor(), LightSensor(), PowerSensor()]
