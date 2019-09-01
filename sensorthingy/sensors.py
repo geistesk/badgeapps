@@ -1,4 +1,5 @@
 import light_sensor
+import power
 
 
 class Sensor:
@@ -20,6 +21,8 @@ class Sensor:
 
 
 class LightSensor(Sensor):
+    "LightSensor reads the values from the onboard IR-LED."
+
     def __init__(self):
         super().__init__("Light Sensor")
 
@@ -44,3 +47,19 @@ class LightSensor(Sensor):
             bright_desc = "Sunlight"
 
         return [bright, bright_desc]
+
+
+class PowerSensor(Sensor):
+    "PowerSensor reads the card10's power status."
+
+    def __init__(self):
+        super().__init__("Power Sensor")
+    
+    @property
+    def fields(self):
+        return ["Battery Voltage (V)", "Battery Current (A)",
+                "Charge Voltage (V)", "Charge Current (A)"]
+
+    def read_values(self, **kwargs):
+        return [power.read_battery_voltage(), power.read_battery_current(),
+                power.read_chargein_voltage(), power.read_chargein_current()]
